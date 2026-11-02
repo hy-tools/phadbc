@@ -1,0 +1,1927 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Python Progress</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+<style>
+/* ─── B&W + line-icon design, EXP system ─── */
+:root {
+  --bg:    #FFFFFF;
+  --bg2:   #F7F7F7;
+  --bg3:   #EFEFEF;
+  --fg:    #0A0A0A;
+  --fg2:   #555555;
+  --fg3:   #999999;
+  --line:  #E0E0E0;
+  --inv:   #0A0A0A;   /* filled buttons */
+  --inv-fg:#FFFFFF;
+  --xp-me: #0A0A0A;
+  --xp-bro:#555555;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --sh: 0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:    #0A0A0A;
+    --bg2:   #141414;
+    --bg3:   #1E1E1E;
+    --fg:    #F2F2F2;
+    --fg2:   #AAAAAA;
+    --fg3:   #555555;
+    --line:  #2A2A2A;
+    --inv:   #F2F2F2;
+    --inv-fg:#0A0A0A;
+    --xp-me: #F2F2F2;
+    --xp-bro:#AAAAAA;
+    --sh: 0 1px 2px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:    #0A0A0A;
+  --bg2:   #141414;
+  --bg3:   #1E1E1E;
+  --fg:    #F2F2F2;
+  --fg2:   #AAAAAA;
+  --fg3:   #555555;
+  --line:  #2A2A2A;
+  --inv:   #F2F2F2;
+  --inv-fg:#0A0A0A;
+  --xp-me: #F2F2F2;
+  --xp-bro:#AAAAAA;
+  --sh: 0 1px 2px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.3);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg); }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  padding-left: max(0px, env(safe-area-inset-left, 0px));
+  padding-right: max(0px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--bg);
+}
+
+/* ─── App Shell ─── */
+.app { display: flex; flex-direction: column; height: 100%; }
+
+/* ─── Top Nav ─── */
+.topnav {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  padding: 0 max(16px, env(safe-area-inset-left,0px));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  flex-shrink: 0;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: -0.04em;
+  color: var(--fg);
+  flex-shrink: 0;
+}
+.logo svg { flex-shrink: 0; }
+
+.nav-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+}
+.nav-tab {
+  padding: 5px 13px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg2);
+  border: none;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .12s;
+  font-family: inherit;
+}
+.nav-tab:hover { background: var(--bg3); color: var(--fg); }
+.nav-tab.active { background: var(--inv); color: var(--inv-fg); font-weight: 600; }
+
+.nav-end { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.user-toggle {
+  display: flex;
+  background: var(--bg3);
+  border-radius: 9px;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--line);
+}
+.user-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--fg3);
+  transition: all .12s;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+}
+.user-btn.active { background: var(--bg); color: var(--fg); box-shadow: var(--sh); }
+
+.icon-btn {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: none;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--fg2);
+  transition: all .12s;
+}
+.icon-btn:hover { background: var(--bg3); color: var(--fg); }
+
+/* ─── Main ─── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px max(16px, env(safe-area-inset-left,0px));
+  min-width: 0;
+}
+
+/* ─── Section Label ─── */
+.section-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg3);
+  margin: 0 0 10px;
+}
+
+/* ─── EXP Hero card ─── */
+.exp-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.exp-card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.exp-card.me-card { border-color: var(--fg); }
+.exp-card-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg3);
+  margin-bottom: 6px;
+}
+.exp-amount {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.exp-amount span { font-size: 13px; font-weight: 500; color: var(--fg3); margin-left: 2px; }
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: var(--bg3);
+  color: var(--fg2);
+  border: 1px solid var(--line);
+}
+.exp-bar-wrap {
+  margin-top: 10px;
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.exp-bar-fill {
+  height: 100%;
+  background: var(--fg);
+  border-radius: 99px;
+  transition: width .5s cubic-bezier(.4,0,.2,1);
+}
+.exp-bar-fill.bro { background: var(--fg2); }
+.exp-next {
+  margin-top: 5px;
+  font-size: 10.5px;
+  color: var(--fg3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Vs Bar ─── */
+.vs-bar {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.vs-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.vs-row:last-child { margin-bottom: 0; }
+.vs-name { font-size: 12px; font-weight: 600; width: 32px; flex-shrink: 0; }
+.vs-track { flex: 1; height: 5px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+.vs-fill { height: 100%; border-radius: 99px; transition: width .4s; }
+.vs-fill.me { background: var(--fg); }
+.vs-fill.bro { background: var(--fg2); }
+.vs-pct { font-size: 11.5px; color: var(--fg2); width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ─── Quick Stats ─── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.stat-box {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 12px 10px;
+}
+.stat-box-val {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.stat-box-label {
+  font-size: 10.5px;
+  color: var(--fg3);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* ─── Category Grid ─── */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.cat-card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color .12s, transform .12s;
+}
+.cat-card:hover { border-color: var(--fg2); transform: translateY(-1px); }
+.cat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.cat-icon-wrap {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: var(--fg2);
+  flex-shrink: 0;
+}
+.cat-title { font-size: 13px; font-weight: 700; }
+.cat-sub { font-size: 11px; color: var(--fg3); margin-top: 1px; }
+.cat-progress-rows { display: flex; flex-direction: column; gap: 5px; }
+.cat-pr {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--fg2);
+}
+.cat-pr-label { width: 22px; font-weight: 600; }
+.cat-pr-track { flex: 1; height: 3px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+.cat-pr-fill { height: 100%; border-radius: 99px; }
+.cat-pr-fill.me { background: var(--fg); }
+.cat-pr-fill.bro { background: var(--fg2); }
+.cat-pr-count { width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ─── Topics Page ─── */
+.filter-bar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.search-wrap {
+  flex: 1;
+  min-width: 140px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-wrap svg {
+  position: absolute;
+  left: 10px;
+  color: var(--fg3);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 6px 10px 6px 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--fg);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+.search-input:focus { border-color: var(--fg2); }
+.filter-chip {
+  padding: 5px 11px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--fg2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .12s;
+}
+.filter-chip:hover { border-color: var(--fg2); color: var(--fg); }
+.filter-chip.active { background: var(--inv); border-color: var(--inv); color: var(--inv-fg); font-weight: 600; }
+
+.cat-section { margin-bottom: 18px; }
+.cat-section-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
+  margin-bottom: 7px;
+}
+.cat-section-hd-icon { color: var(--fg2); display: flex; align-items: center; }
+.cat-section-hd-name { font-size: 13px; font-weight: 700; flex: 1; }
+.cat-section-hd-level {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  color: var(--fg3);
+}
+.cat-section-hd-count {
+  font-size: 11px;
+  color: var(--fg3);
+  font-variant-numeric: tabular-nums;
+}
+
+.topic-list {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.topic-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  transition: background .08s;
+}
+.topic-row:last-child { border-bottom: none; }
+.topic-row:hover { background: var(--bg3); }
+
+.check-btn {
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  border: 1.5px solid var(--line);
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all .12s;
+  color: transparent;
+  padding: 0;
+}
+.check-btn:hover { border-color: var(--fg2); }
+.check-btn.done-me { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.check-btn.done-bro { background: var(--fg2); border-color: var(--fg2); color: var(--bg); }
+.check-btn.done-both {
+  background: linear-gradient(135deg, var(--fg) 50%, var(--fg2) 50%);
+  border-color: transparent;
+  color: var(--bg);
+}
+
+.topic-info { flex: 1; min-width: 0; }
+.topic-name { font-size: 13px; font-weight: 500; color: var(--fg); }
+.topic-name.done { text-decoration: line-through; color: var(--fg3); }
+.topic-sub { font-size: 11px; color: var(--fg3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.topic-xp {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--fg3);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.topic-duo {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.duo-dot {
+  width: 18px; height: 18px;
+  border-radius: 99px;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  border: 1.5px solid var(--line);
+  color: var(--fg3);
+}
+.duo-dot.done-me { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.duo-dot.done-bro { background: var(--fg2); border-color: var(--fg2); color: var(--bg); }
+
+.cmt-btn {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--fg3);
+  flex-shrink: 0;
+  transition: all .12s;
+  padding: 0;
+}
+.cmt-btn:hover { background: var(--bg3); color: var(--fg); }
+.cmt-btn.has-cmt { color: var(--fg2); }
+
+/* ─── Drawer ─── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+
+.drawer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  z-index: 201;
+  padding: 0 max(16px, env(safe-area-inset-left,0px));
+  padding-bottom: max(16px, env(safe-area-inset-bottom,0px));
+  transform: translateY(100%);
+  transition: transform .22s cubic-bezier(.4,0,.2,1);
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+}
+.drawer.open { transform: translateY(0); }
+.drawer-pip {
+  width: 34px; height: 3px;
+  background: var(--line);
+  border-radius: 99px;
+  margin: 10px auto 6px;
+  flex-shrink: 0;
+}
+.drawer-hd {
+  padding: 6px 0 12px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.drawer-hd-title {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.drawer-hd-sub { font-size: 11.5px; color: var(--fg3); margin-top: 2px; }
+
+.cmt-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cmt-item { display: flex; gap: 8px; align-items: flex-start; }
+.cmt-avatar {
+  width: 26px; height: 26px;
+  border-radius: 99px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 800;
+  border: 1.5px solid var(--line);
+  flex-shrink: 0;
+  color: var(--fg2);
+}
+.cmt-avatar.me { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.cmt-bubble {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-width: 0;
+}
+.cmt-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.cmt-author { font-size: 11.5px; font-weight: 700; }
+.cmt-author.me { color: var(--fg); }
+.cmt-author.bro { color: var(--fg2); }
+.cmt-time { font-size: 10.5px; color: var(--fg3); }
+.cmt-text { font-size: 13px; color: var(--fg); word-break: break-word; }
+.cmt-empty {
+  text-align: center;
+  padding: 20px 0;
+  color: var(--fg3);
+  font-size: 13px;
+}
+
+.cmt-form {
+  display: flex;
+  gap: 7px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+  align-items: flex-end;
+}
+.cmt-input {
+  flex: 1;
+  padding: 8px 11px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--fg);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+}
+.cmt-input:focus { border-color: var(--fg2); }
+.cmt-send {
+  padding: 8px 14px;
+  border-radius: 9px;
+  background: var(--inv);
+  border: none;
+  color: var(--inv-fg);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.cmt-send:disabled { opacity: .4; cursor: default; }
+
+/* ─── EXP Toast ─── */
+.xp-toast {
+  position: fixed;
+  top: max(68px, calc(env(safe-area-inset-top, 0px) + 68px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--inv);
+  color: var(--inv-fg);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 900;
+  transform: translateX(120%);
+  transition: transform .22s cubic-bezier(.4,0,.2,1);
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+.xp-toast.show { transform: translateX(0); }
+
+/* ─── Generic Toast ─── */
+.toast {
+  position: fixed;
+  bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--inv);
+  color: var(--inv-fg);
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 999;
+  transition: transform .18s;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ─── Loading ─── */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  transition: opacity .25s;
+}
+.loading-overlay.gone { opacity: 0; pointer-events: none; }
+.loading-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.loading-logo {
+  width: 44px; height: 44px;
+  border: 2px solid var(--fg);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+.loading-text { font-size: 13px; color: var(--fg3); }
+
+/* ─── Pages ─── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ─── Mobile Tabs ─── */
+.mobile-tabs { display: none; }
+@media (max-width: 520px) {
+  .nav-tabs { display: none; }
+  .mobile-tabs {
+    display: flex !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    padding: 8px max(16px, env(safe-area-inset-left,0px));
+    padding-bottom: max(8px, env(safe-area-inset-bottom,0px));
+    gap: 4px;
+    z-index: 50;
+  }
+  .mob-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 4px;
+    border-radius: 9px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--fg3);
+    font-size: 10px;
+    font-weight: 500;
+    transition: color .12s;
+    font-family: inherit;
+  }
+  .mob-tab.active { color: var(--fg); }
+  .exp-hero { grid-template-columns: 1fr 1fr; }
+  .stats-row { grid-template-columns: repeat(3,1fr); }
+  .cat-grid { grid-template-columns: 1fr; }
+  .main { padding-bottom: 80px; }
+}
+</style>
+<style id="v2">
+/* ═════════ v2 · branch-style back navigation + polish ═════════ */
+:root{
+  --branch:#D2D2D2;
+  --branch-on:#0A0A0A;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --node:32px;
+  --bw:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --branch:#383838; --branch-on:#F2F2F2; }
+}
+:root[data-theme="dark"]{ --branch:#383838; --branch-on:#F2F2F2; }
+
+button{-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+
+/* ── glass top bar ── */
+.topnav{
+  background:color-mix(in srgb,var(--bg) 78%,transparent);
+  -webkit-backdrop-filter:saturate(1.5) blur(14px);
+  backdrop-filter:saturate(1.5) blur(14px);
+}
+.logo{gap:9px}
+.logo svg{box-sizing:content-box;padding:5px;border-radius:9px;background:var(--inv);color:var(--inv-fg);width:18px;height:18px}
+.nav-tabs{gap:4px}
+.nav-tab{border-radius:999px;padding:6px 15px;transition:all .3s var(--ease)}
+.nav-tab.active{box-shadow:0 6px 16px -8px color-mix(in srgb,var(--inv) 80%,transparent)}
+.user-toggle{border-radius:999px}
+.user-btn{border-radius:999px;transition:all .3s var(--ease)}
+.icon-btn{border-radius:50%;transition:all .3s var(--ease)}
+.icon-btn:hover{transform:rotate(20deg)}
+
+/* ── page canvas ── */
+.main{background:radial-gradient(ellipse 70% 280px at 50% 0%,color-mix(in srgb,var(--fg) 6%,transparent),transparent) no-repeat}
+.page{max-width:880px;margin:0 auto}
+.page.active{animation:pageIn .55s var(--ease) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.section-label{display:flex;align-items:center;gap:9px}
+.section-label::before{content:"";width:16px;height:2px;border-radius:2px;background:var(--fg)}
+
+/* ── XP hero cards ── */
+.exp-card{box-shadow:var(--sh);transition:transform .4s var(--ease),box-shadow .4s,background .4s,color .4s,border-color .4s}
+.exp-card.me-card{border-color:var(--line)}
+.exp-card::after{content:"";position:absolute;right:-34px;top:-34px;width:120px;height:120px;border-radius:50%;border:1px solid currentColor;opacity:.07;pointer-events:none}
+.exp-card::before{content:"";position:absolute;right:-6px;top:-6px;width:64px;height:64px;border-radius:50%;border:1px solid currentColor;opacity:.07;pointer-events:none}
+.exp-card:hover{transform:translateY(-2px)}
+.exp-amount{font-size:34px}
+.exp-bar-wrap{height:5px}
+.exp-card.active-user{background:var(--inv);color:var(--inv-fg);border-color:var(--inv);box-shadow:0 18px 36px -18px color-mix(in srgb,var(--inv) 70%,transparent)}
+.exp-card.active-user .exp-card-label,
+.exp-card.active-user .exp-next,
+.exp-card.active-user .exp-amount span{color:color-mix(in srgb,var(--inv-fg) 58%,transparent)}
+.exp-card.active-user .level-badge{background:color-mix(in srgb,var(--inv-fg) 14%,transparent);border-color:color-mix(in srgb,var(--inv-fg) 24%,transparent);color:var(--inv-fg)}
+.exp-card.active-user .exp-bar-wrap{background:color-mix(in srgb,var(--inv-fg) 24%,transparent)}
+.exp-card.active-user .exp-bar-fill,
+.exp-card.active-user .exp-bar-fill.bro{background:var(--inv-fg)}
+
+/* ── bars / stats ── */
+.vs-bar,.stat-box{box-shadow:var(--sh)}
+.vs-fill.me{background:linear-gradient(90deg,var(--fg2),var(--fg))}
+.vs-track{height:6px}
+.stat-box{transition:transform .3s var(--ease)}
+.stat-box:hover{transform:translateY(-2px)}
+.stat-box-val{font-size:26px}
+
+/* ── category cards ── */
+.cat-card{position:relative;overflow:hidden;box-shadow:var(--sh);transition:transform .35s var(--ease),box-shadow .35s,border-color .2s}
+.cat-card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--fg);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.cat-card:hover{transform:translateY(-3px);box-shadow:0 16px 30px -18px rgba(0,0,0,.45)}
+.cat-card:hover::after{transform:scaleX(1)}
+.cat-card:active{transform:scale(.985)}
+.cat-icon-wrap{border-radius:50%;transition:all .3s var(--ease)}
+.cat-card:hover .cat-icon-wrap{background:var(--inv);color:var(--inv-fg);border-color:var(--inv)}
+.cat-go{margin-left:auto;flex-shrink:0;color:var(--fg3);transition:transform .3s var(--ease),color .3s}
+.cat-card:hover .cat-go{transform:translateX(4px);color:var(--fg)}
+
+/* ── filters ── */
+.search-input{border-radius:999px;padding-left:34px;transition:border-color .2s,box-shadow .2s}
+.search-input:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--fg) 8%,transparent)}
+.filter-chip{border-radius:999px;transition:all .3s var(--ease)}
+
+/* ═════════ branch trail + back button ═════════ */
+.trail{
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+  padding:0 max(16px,env(safe-area-inset-left,0px));
+  max-height:0;opacity:0;visibility:hidden;overflow:hidden;
+  background:var(--bg);border-bottom:1px solid transparent;
+  transition:max-height .45s var(--ease),opacity .3s,padding .3s,border-color .3s,visibility 0s .45s;
+}
+.trail.show{
+  max-height:60px;opacity:1;visibility:visible;
+  padding-top:9px;padding-bottom:9px;border-bottom-color:var(--line);
+  transition-delay:0s;
+}
+.back-btn{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  display:grid;place-items:center;cursor:pointer;padding:0;
+  border:1px solid var(--line);background:var(--bg2);color:var(--fg);
+  box-shadow:var(--sh);
+  transition:transform .3s var(--ease),background .25s,color .25s,border-color .25s;
+}
+.back-btn svg{transition:transform .3s var(--ease)}
+.back-btn:hover{background:var(--inv);color:var(--inv-fg);border-color:var(--inv)}
+.back-btn:hover svg{transform:translateX(-2px)}
+.back-btn:active{transform:scale(.88)}
+.back-btn.sm{width:32px;height:32px}
+
+.trail-path{display:flex;align-items:flex-start;min-width:0;overflow-x:auto;scrollbar-width:none;padding:1px 0 3px}
+.trail-path::-webkit-scrollbar{display:none}
+.tnode{
+  display:inline-flex;align-items:center;gap:8px;flex-shrink:0;
+  border:none;background:none;font:inherit;font-size:12.5px;font-weight:600;
+  color:var(--fg2);padding:4px 9px;border-radius:999px;cursor:pointer;white-space:nowrap;
+  transition:background .2s,color .2s;
+}
+.tnode .t{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+.tnode .dot{
+  width:9px;height:9px;border-radius:50%;flex-shrink:0;
+  border:2px solid var(--branch-on);background:var(--bg);
+  transition:all .3s var(--ease);
+}
+.tnode:hover{background:var(--bg3);color:var(--fg)}
+.tnode.current{color:var(--fg);font-weight:800;cursor:default}
+.tnode.current:hover{background:none}
+.tnode.current .dot{background:var(--branch-on);box-shadow:0 0 0 4px color-mix(in srgb,var(--fg) 13%,transparent)}
+/* the little “└─” elbow that joins one node to the next */
+.tlink{
+  flex-shrink:0;width:20px;height:13px;margin:3px 1px 0 3px;
+  border-left:2px solid var(--branch-on);border-bottom:2px solid var(--branch-on);
+  border-bottom-left-radius:10px;
+}
+.tnode.new{animation:nodeIn .55s var(--ease) both}
+.tlink.new{animation:branchGrow .5s var(--ease) both}
+@keyframes nodeIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+@keyframes branchGrow{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+
+/* ═════════ topics rendered as a growing tree ═════════ */
+.cat-section{margin-bottom:28px}
+.cat-section-hd{gap:11px;margin-bottom:8px;padding:0}
+.cat-section-hd-icon{
+  width:var(--node);height:var(--node);border-radius:50%;flex-shrink:0;
+  display:grid;place-items:center;
+  border:2px solid var(--branch-on);background:var(--bg);color:var(--fg);
+  transition:all .5s var(--ease);
+}
+.cat-section-hd-icon svg{width:15px;height:15px}
+.cat-section.complete .cat-section-hd-icon{background:var(--inv);color:var(--inv-fg);box-shadow:0 0 0 5px color-mix(in srgb,var(--fg) 12%,transparent)}
+.cat-section-hd-name{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.cat-section-hd-level{border-radius:999px;padding:2px 8px}
+
+.topic-list{
+  background:none;border:none;border-radius:0;overflow:visible;
+  margin-left:calc(var(--node)/2 - 1px);
+  display:flex;flex-direction:column;gap:8px;
+}
+.topic-row{
+  position:relative;margin-left:var(--bw);
+  background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);
+  padding:11px 12px;box-shadow:var(--sh);
+  transition:border-color .25s,box-shadow .25s,background .25s;
+}
+.topic-row:last-child{border-bottom:1px solid var(--line)}
+.topic-row:hover{background:var(--bg2);border-color:var(--fg3);box-shadow:0 10px 22px -16px rgba(0,0,0,.5)}
+/* branch: trunk comes down, then curves right into the topic */
+.topic-row::before{
+  content:"";position:absolute;pointer-events:none;
+  left:calc(-1px - var(--bw));top:-9px;width:var(--bw);height:calc(50% + 10px);
+  border-left:2px solid var(--branch);border-bottom:2px solid var(--branch);
+  border-bottom-left-radius:14px;
+  transition:border-color .6s;
+}
+/* trunk continues down to the next branch */
+.topic-row:not(:last-child)::after{
+  content:"";position:absolute;pointer-events:none;
+  left:calc(-1px - var(--bw));top:calc(50% - 14px);bottom:-9px;
+  border-left:2px solid var(--branch);
+  transition:border-color .6s;
+}
+/* finished topics “light up” the branch */
+.topic-row.trunk-in::before{border-left-color:var(--branch-on)}
+.topic-row.leaf-done::before{border-bottom-color:var(--branch-on)}
+.topic-row.trunk-out::after{border-left-color:var(--branch-on)}
+
+.check-btn{width:22px;height:22px;border-radius:50%;transition:all .3s var(--ease)}
+.check-btn.pop{animation:pop .5s var(--ease)}
+@keyframes pop{0%{transform:scale(.55)}55%{transform:scale(1.22)}100%{transform:scale(1)}}
+.topic-name{font-weight:600}
+
+.anim .topic-row{animation:rise .55s var(--ease) both;animation-delay:calc(var(--i,0) * 32ms)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── drawer ── */
+.overlay{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.drawer{border-radius:24px 24px 0 0;box-shadow:0 -24px 60px -24px rgba(0,0,0,.5);max-width:640px;margin:0 auto}
+.drawer-hd{display:flex;align-items:center;gap:12px}
+.drawer-hd-text{min-width:0}
+.drawer-hd-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmt-bubble{border-radius:14px}
+.cmt-input{border-radius:999px;padding-left:14px}
+.cmt-send{border-radius:999px;padding:8px 18px;transition:transform .2s var(--ease)}
+.cmt-send:active{transform:scale(.94)}
+
+/* ── toasts + loader ── */
+.xp-toast{border-radius:999px;padding:9px 16px;box-shadow:0 12px 28px -10px rgba(0,0,0,.55);transition:transform .5s var(--ease)}
+.toast{border-radius:999px}
+.loading-logo{border-radius:14px;animation:breathe 1.4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+@media (max-width:520px){
+  .mobile-tabs{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 82%,transparent)!important}
+  .mob-tab{position:relative;transition:color .25s}
+  .mob-tab::before{content:"";width:20px;height:3px;border-radius:3px;background:var(--fg);transform:scaleX(0);transition:transform .35s var(--ease);margin-bottom:2px}
+  .mob-tab.active::before{transform:scaleX(1)}
+  .tnode .t{max-width:120px}
+}
+@media (max-width:420px){
+  :root{--node:28px;--bw:16px}
+  .topic-xp{display:none}
+}
+/* ── per-topic notes ── */
+.note-box{padding:10px 0 12px;flex-shrink:0;border-bottom:1px solid var(--line)}
+.note-hd{display:flex;align-items:center;justify-content:space-between;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);margin-bottom:6px}
+.note-state{text-transform:none;letter-spacing:0;font-weight:500}
+.note-input{display:block;width:100%;min-height:64px;max-height:130px;resize:vertical;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--bg2);color:var(--fg);font:inherit;font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s}
+.note-input:focus{border-color:var(--fg2);box-shadow:0 0 0 4px color-mix(in srgb,var(--fg) 8%,transparent)}
+.topic-note{font-size:11.5px;color:var(--fg2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic}
+.topic-note::before{content:"✎ ";font-style:normal;color:var(--fg3)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+}
+</style>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-mark">
+    <div class="loading-logo">Py</div>
+    <div class="loading-text">Loading…</div>
+  </div>
+</div>
+
+<!-- XP Toast -->
+<div class="xp-toast" id="xpToast"></div>
+<div class="toast" id="toast"></div>
+
+<!-- Comment Drawer -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-pip"></div>
+  <div class="drawer-hd">
+    <button class="back-btn sm" onclick="goBack()" aria-label="Back" title="Back">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="drawer-hd-text">
+      <div class="drawer-hd-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Notes &amp; comments
+      </div>
+      <div class="drawer-hd-sub" id="drawerSub"></div>
+    </div>
+  </div>
+  <div class="note-box">
+    <div class="note-hd"><span id="noteWho">Your note</span><span class="note-state" id="noteState"></span></div>
+    <textarea class="note-input" id="noteInput" rows="2" placeholder="Write a note on this topic…" oninput="onNoteInput()"></textarea>
+  </div>
+  <div class="note-hd" style="padding-top:10px"><span>Comments</span></div>
+  <div class="cmt-list" id="cmtList"></div>
+  <div class="cmt-form">
+    <textarea class="cmt-input" id="cmtInput" rows="1" placeholder="Note, tip, question…"></textarea>
+    <button class="cmt-send" id="cmtSend" onclick="submitComment()">Send</button>
+  </div>
+</div>
+
+<!-- App -->
+<div class="app">
+  <nav class="topnav">
+    <div class="logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      PythonPath
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-page="overview" onclick="goPage('overview')">Overview</button>
+      <button class="nav-tab" data-page="topics" onclick="goPage('topics')">Topics</button>
+    </div>
+    <div class="nav-end">
+      <div class="user-toggle">
+        <button class="user-btn active" id="btnMe" onclick="switchUser('me')">You</button>
+        <button class="user-btn" id="btnBro" onclick="switchUser('bro')">Bro</button>
+      </div>
+      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Branch trail + back button -->
+  <div class="trail" id="trail" role="navigation" aria-label="Where you are">
+    <button class="back-btn" id="backBtn" onclick="goBack()" aria-label="Go back" title="Back">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="trail-path" id="trailPath"></div>
+  </div>
+
+  <main class="main">
+
+    <!-- Overview -->
+    <div class="page active" id="page-overview">
+
+      <p class="section-label">Experience Points</p>
+      <div class="exp-hero">
+        <div class="exp-card me-card" id="cardMe">
+          <div class="exp-card-label">You</div>
+          <div class="exp-amount" id="xpMeVal">0 <span>XP</span></div>
+          <div class="level-badge" id="levelMe">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Lv.1 · Novice
+          </div>
+          <div class="exp-bar-wrap"><div class="exp-bar-fill" id="xpMeBar" style="width:0%"></div></div>
+          <div class="exp-next" id="xpMeNext">0 / 50 XP to next level</div>
+        </div>
+        <div class="exp-card" id="cardBro">
+          <div class="exp-card-label">Bro</div>
+          <div class="exp-amount" id="xpBroVal">0 <span>XP</span></div>
+          <div class="level-badge" id="levelBro">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Lv.1 · Novice
+          </div>
+          <div class="exp-bar-wrap"><div class="exp-bar-fill bro" id="xpBroBar" style="width:0%"></div></div>
+          <div class="exp-next" id="xpBroNext">0 / 50 XP to next level</div>
+        </div>
+      </div>
+
+      <p class="section-label">Progress</p>
+      <div class="vs-bar">
+        <div class="vs-row">
+          <div class="vs-name">You</div>
+          <div class="vs-track"><div class="vs-fill me" id="vsMe" style="width:0%"></div></div>
+          <div class="vs-pct" id="vsMePct">0%</div>
+        </div>
+        <div class="vs-row">
+          <div class="vs-name">Bro</div>
+          <div class="vs-track"><div class="vs-fill bro" id="vsBro" style="width:0%"></div></div>
+          <div class="vs-pct" id="vsBroPct">0%</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-box-val" id="sMe">0</div>
+          <div class="stat-box-label">You done</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-val" id="sBro">0</div>
+          <div class="stat-box-label">Bro done</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-val" id="sBoth">0</div>
+          <div class="stat-box-label">Both done</div>
+        </div>
+      </div>
+
+      <p class="section-label">By Category</p>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+
+    <!-- Topics -->
+    <div class="page" id="page-topics">
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" id="searchInput" type="text" placeholder="Search topics…" oninput="renderTopics()">
+        </div>
+        <button class="filter-chip active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-chip" onclick="setFilter('done',this)">Done</button>
+        <button class="filter-chip" onclick="setFilter('pending',this)">Pending</button>
+      </div>
+      <div id="topicsContainer"></div>
+    </div>
+
+  </main>
+
+  <div class="mobile-tabs">
+    <button class="mob-tab active" id="mob-overview" data-page="overview" onclick="goPage('overview')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </button>
+    <button class="mob-tab" id="mob-topics" data-page="topics" onclick="goPage('topics')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Topics
+    </button>
+  </div>
+</div>
+
+<script>
+// ─── CATEGORIES DATA ────────────────────────────────────────
+const CATS = [
+  { id:"basics", name:"Python Basics", level:"Beginner", xpEach:10,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+    topics:[
+      {id:"b01",name:"Installation & Setup",sub:"Python, pip, virtual environments"},
+      {id:"b02",name:"Variables & Data Types",sub:"int, float, str, bool, None"},
+      {id:"b03",name:"String Operations",sub:"slicing, methods, f-strings, formatting"},
+      {id:"b04",name:"Operators",sub:"arithmetic, comparison, logical, bitwise"},
+      {id:"b05",name:"Input / Output",sub:"print(), input(), type conversion"},
+      {id:"b06",name:"Conditional Statements",sub:"if / elif / else"},
+      {id:"b07",name:"Loops",sub:"for, while, break, continue, range()"},
+      {id:"b08",name:"Lists",sub:"indexing, slicing, methods, list comprehensions"},
+      {id:"b09",name:"Tuples",sub:"immutability, packing, unpacking"},
+      {id:"b10",name:"Dictionaries",sub:"keys, values, items, dict comprehensions"},
+      {id:"b11",name:"Sets",sub:"set operations, frozen sets"},
+      {id:"b12",name:"Functions",sub:"def, args, kwargs, return, scope"},
+      {id:"b13",name:"Lambda Functions",sub:"anonymous functions, map, filter, reduce"},
+      {id:"b14",name:"Modules & Imports",sub:"import, from, as, __name__"},
+      {id:"b15",name:"File I/O",sub:"open(), read, write, with statement"},
+      {id:"b16",name:"Error Handling",sub:"try, except, finally, raise, custom errors"},
+    ]
+  },
+  { id:"intermediate", name:"Intermediate Python", level:"Intermediate", xpEach:20,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    topics:[
+      {id:"i01",name:"Object-Oriented Programming",sub:"classes, objects, __init__, self"},
+      {id:"i02",name:"Inheritance & Polymorphism",sub:"super(), method overriding, MRO"},
+      {id:"i03",name:"Magic / Dunder Methods",sub:"__str__, __repr__, __len__, __add__"},
+      {id:"i04",name:"Decorators",sub:"@decorator, functools.wraps, stacking"},
+      {id:"i05",name:"Generators & Iterators",sub:"yield, __iter__, __next__, lazy eval"},
+      {id:"i06",name:"Context Managers",sub:"__enter__, __exit__, contextlib"},
+      {id:"i07",name:"Comprehensions (all)",sub:"list, dict, set, generator expressions"},
+      {id:"i08",name:"Regular Expressions",sub:"re module, patterns, groups, flags"},
+      {id:"i09",name:"Collections Module",sub:"Counter, defaultdict, OrderedDict, deque"},
+      {id:"i10",name:"itertools & functools",sub:"chain, product, partial, reduce, lru_cache"},
+      {id:"i11",name:"Type Hints & Annotations",sub:"typing module, Optional, Union, generics"},
+      {id:"i12",name:"Dataclasses",sub:"@dataclass, field(), frozen, post_init"},
+      {id:"i13",name:"Closures & First-class Fns",sub:"higher-order functions, factory fns"},
+      {id:"i14",name:"Virtual Environments",sub:"venv, pip, requirements.txt, pyproject"},
+    ]
+  },
+  { id:"advanced", name:"Advanced Python", level:"Advanced", xpEach:35,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    topics:[
+      {id:"a01",name:"Asyncio & Async/Await",sub:"event loop, coroutines, tasks, gather"},
+      {id:"a02",name:"Multithreading",sub:"threading module, locks, GIL"},
+      {id:"a03",name:"Multiprocessing",sub:"process pool, queue, shared memory"},
+      {id:"a04",name:"Metaclasses",sub:"__metaclass__, type(), class creation"},
+      {id:"a05",name:"Descriptors & Properties",sub:"@property, __get__, __set__, __delete__"},
+      {id:"a06",name:"Memory Management",sub:"reference counting, gc, weakref"},
+      {id:"a07",name:"Profiling & Optimization",sub:"cProfile, timeit, line_profiler, slots"},
+      {id:"a08",name:"Abstract Base Classes",sub:"abc module, @abstractmethod, ABC"},
+      {id:"a09",name:"Protocols (Structural Typing)",sub:"typing.Protocol, duck typing"},
+      {id:"a10",name:"Packaging & Distribution",sub:"setup.py, pyproject.toml, PyPI, twine"},
+    ]
+  },
+  { id:"numpy", name:"NumPy", level:"Library", xpEach:25,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
+    topics:[
+      {id:"np01",name:"Arrays & ndarray",sub:"creation, dtype, shape, ndim"},
+      {id:"np02",name:"Array Indexing & Slicing",sub:"fancy indexing, boolean masks"},
+      {id:"np03",name:"Array Operations",sub:"broadcasting, vectorization, ufuncs"},
+      {id:"np04",name:"Linear Algebra",sub:"dot, matmul, inv, eig, svd, lstsq"},
+      {id:"np05",name:"Statistical Functions",sub:"mean, std, var, percentile, histogram"},
+      {id:"np06",name:"Random Module",sub:"random, seed, normal, choice, shuffle"},
+      {id:"np07",name:"Reshaping & Stacking",sub:"reshape, transpose, stack, concat, split"},
+    ]
+  },
+  { id:"pandas", name:"Pandas", level:"Library", xpEach:25,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"/><path d="M3 11h18v4H3z"/><path d="M3 19h18v2H3z"/></svg>',
+    topics:[
+      {id:"pd01",name:"Series & DataFrame",sub:"creation, dtypes, index"},
+      {id:"pd02",name:"Reading & Writing Data",sub:"CSV, Excel, JSON, SQL, Parquet"},
+      {id:"pd03",name:"Indexing & Selection",sub:"loc, iloc, boolean indexing, query"},
+      {id:"pd04",name:"Data Cleaning",sub:"null handling, duplicates, type casting"},
+      {id:"pd05",name:"GroupBy & Aggregation",sub:"groupby, agg, transform, apply"},
+      {id:"pd06",name:"Merging & Joining",sub:"merge, join, concat, pivot, melt"},
+      {id:"pd07",name:"Time Series",sub:"DatetimeIndex, resample, rolling, shift"},
+      {id:"pd08",name:"String Operations",sub:".str accessor, regex in pandas"},
+    ]
+  },
+  { id:"matplotlib", name:"Matplotlib & Seaborn", level:"Library", xpEach:20,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+    topics:[
+      {id:"plt01",name:"Basic Plots",sub:"line, bar, scatter, histogram, pie"},
+      {id:"plt02",name:"Figure & Axes",sub:"subplots, figsize, tight_layout, dpi"},
+      {id:"plt03",name:"Styling & Customization",sub:"colors, markers, fonts, grid, legend"},
+      {id:"plt04",name:"Seaborn Statistical Plots",sub:"heatmap, violin, pairplot, boxplot"},
+      {id:"plt05",name:"Saving & Exporting",sub:"savefig, formats, DPI, vector output"},
+    ]
+  },
+  { id:"sklearn", name:"Scikit-learn", level:"ML", xpEach:30,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>',
+    topics:[
+      {id:"sk01",name:"Preprocessing",sub:"StandardScaler, MinMaxScaler, LabelEncoder"},
+      {id:"sk02",name:"Train/Test Split & CV",sub:"train_test_split, KFold, StratifiedKFold"},
+      {id:"sk03",name:"Linear Models",sub:"LinearRegression, Ridge, Lasso, LogisticReg"},
+      {id:"sk04",name:"Tree-based Models",sub:"DecisionTree, RandomForest, GradientBoosting"},
+      {id:"sk05",name:"SVMs & KNN",sub:"SVC, SVR, KNeighborsClassifier"},
+      {id:"sk06",name:"Clustering",sub:"KMeans, DBSCAN, AgglomerativeClustering"},
+      {id:"sk07",name:"Dimensionality Reduction",sub:"PCA, t-SNE, LDA, TruncatedSVD"},
+      {id:"sk08",name:"Pipelines",sub:"Pipeline, ColumnTransformer, FeatureUnion"},
+      {id:"sk09",name:"Model Evaluation",sub:"accuracy, F1, ROC-AUC, confusion matrix"},
+      {id:"sk10",name:"Hyperparameter Tuning",sub:"GridSearchCV, RandomizedSearchCV"},
+      {id:"sk11",name:"Feature Engineering",sub:"PolynomialFeatures, SelectKBest, RFE"},
+    ]
+  },
+  { id:"tensorflow", name:"TensorFlow & Keras", level:"DL", xpEach:40,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+    topics:[
+      {id:"tf01",name:"Tensors & Operations",sub:"constant, Variable, math ops, GPU"},
+      {id:"tf02",name:"Keras Sequential API",sub:"Dense, layers, compile, fit, predict"},
+      {id:"tf03",name:"Keras Functional API",sub:"multi-input/output, branching models"},
+      {id:"tf04",name:"CNNs",sub:"Conv2D, MaxPooling, BatchNorm, Flatten"},
+      {id:"tf05",name:"RNNs & LSTMs",sub:"LSTM, GRU, Bidirectional, SimpleRNN"},
+      {id:"tf06",name:"Custom Layers & Training",sub:"tf.GradientTape, custom callbacks"},
+      {id:"tf07",name:"Transfer Learning",sub:"VGG, ResNet, MobileNet, feature extraction"},
+      {id:"tf08",name:"Saving & Deployment",sub:"SavedModel, TFLite, TF Serving"},
+    ]
+  },
+  { id:"pytorch", name:"PyTorch", level:"DL", xpEach:40,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+    topics:[
+      {id:"pt01",name:"Tensors & Autograd",sub:"tensor ops, requires_grad, backward()"},
+      {id:"pt02",name:"nn.Module",sub:"custom modules, forward(), parameters()"},
+      {id:"pt03",name:"DataLoader & Datasets",sub:"Dataset, DataLoader, transforms"},
+      {id:"pt04",name:"Training Loop",sub:"optimizer, loss, zero_grad, step"},
+      {id:"pt05",name:"CNN in PyTorch",sub:"Conv2d, MaxPool, BatchNorm, Sequential"},
+      {id:"pt06",name:"RNN / Transformer",sub:"LSTM, GRU, nn.Transformer, Attention"},
+      {id:"pt07",name:"Transfer Learning",sub:"torchvision models, fine-tuning"},
+      {id:"pt08",name:"Saving & Loading",sub:"state_dict, checkpoint, ONNX export"},
+    ]
+  },
+  { id:"nlp", name:"NLP Libraries", level:"AI", xpEach:35,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    topics:[
+      {id:"nl01",name:"NLTK Basics",sub:"tokenize, stem, lemmatize, pos_tag"},
+      {id:"nl02",name:"spaCy",sub:"pipeline, NER, dependency parsing, vectors"},
+      {id:"nl03",name:"HuggingFace Transformers",sub:"AutoTokenizer, pipeline, BERT, GPT"},
+      {id:"nl04",name:"Word Embeddings",sub:"Word2Vec, GloVe, FastText"},
+      {id:"nl05",name:"Text Preprocessing",sub:"stopwords, TF-IDF, vectorizers"},
+    ]
+  },
+  { id:"mlops", name:"MLOps & Tools", level:"DevOps", xpEach:25,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>',
+    topics:[
+      {id:"ml01",name:"Jupyter Notebooks",sub:"cells, magic commands, nbconvert"},
+      {id:"ml02",name:"Git for Data Science",sub:"DVC, tracking experiments, .gitignore"},
+      {id:"ml03",name:"MLflow",sub:"tracking, model registry, autolog"},
+      {id:"ml04",name:"Weights & Biases",sub:"wandb.init, logging, sweeps"},
+      {id:"ml05",name:"Docker for ML",sub:"Dockerfile, containers, serving"},
+      {id:"ml06",name:"REST APIs (FastAPI)",sub:"endpoints, Pydantic, serving ML models"},
+    ]
+  },
+  { id:"extra", name:"Extra Essentials", level:"Library", xpEach:20,
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    topics:[
+      {id:"ex01",name:"SciPy",sub:"stats, optimize, signal, integrate, linalg"},
+      {id:"ex02",name:"OpenCV",sub:"image I/O, transforms, feature detection"},
+      {id:"ex03",name:"Plotly & Dash",sub:"interactive charts, dashboards"},
+      {id:"ex04",name:"XGBoost & LightGBM",sub:"boosting, DMatrix, cv, feature_importance"},
+      {id:"ex05",name:"Optuna / Hyperopt",sub:"automated hyperparameter search"},
+      {id:"ex06",name:"Requests & BeautifulSoup",sub:"HTTP, scraping, parsing HTML"},
+      {id:"ex07",name:"SQLAlchemy",sub:"ORM, queries, models, sessions"},
+      {id:"ex08",name:"Pathlib & os",sub:"file system navigation, path manipulation"},
+    ]
+  }
+];
+
+// XP → Level map
+const LEVELS = [
+  {min:0,    max:50,    lv:1, name:"Novice"},
+  {min:50,   max:150,   lv:2, name:"Learner"},
+  {min:150,  max:350,   lv:3, name:"Coder"},
+  {min:350,  max:700,   lv:4, name:"Developer"},
+  {min:700,  max:1200,  lv:5, name:"Practitioner"},
+  {min:1200, max:2000,  lv:6, name:"Engineer"},
+  {min:2000, max:3200,  lv:7, name:"Specialist"},
+  {min:3200, max:4800,  lv:8, name:"Expert"},
+  {min:4800, max:7000,  lv:9, name:"Master"},
+  {min:7000, max:99999, lv:10, name:"Pythonist"},
+];
+
+function calcXP(user) {
+  let xp = 0;
+  CATS.forEach(c => c.topics.forEach(t => {
+    if (progress[user][t.id]) xp += c.xpEach;
+  }));
+  return xp;
+}
+
+function getLevelInfo(xp) {
+  for (const l of LEVELS) {
+    if (xp >= l.min && xp < l.max) return l;
+  }
+  return LEVELS[LEVELS.length - 1];
+}
+
+// ─── STATE ──────────────────────────────────
+let db = null;
+let currentUser = 'me';
+let currentPage = 'overview';
+let currentFilter = 'all';
+let progress = { me: {}, bro: {} };
+let commentsData = {};
+let drawerTopicId = null;
+let activeCatFilter = null;
+let route = { page:'overview', cat:null, note:null };   // where we are in the tree
+let prevKey = null;          // route visited right before this one
+let trailLen = 0;            // so only freshly-grown branches animate
+let animateNext = true;      // stagger topic rows on page change only
+let lastToggled = null;      // for the check "pop"
+let notesData = {};          // "user__topicId" → note text
+const scrollMem = {};        // remembered scroll per route (restored on Back)
+
+// ─── INIT ────────────────────────────────────
+async function init() {
+  try {
+    const th = localStorage.getItem('theme');
+    if (th) {
+      document.documentElement.setAttribute('data-theme', th);
+      updateThemeIcon(th);
+    }
+  } catch(e) {}
+
+  // start on whatever branch the link points to (#topics, #cat-numpy, …)
+  apply(parseKey(location.hash), true);
+  window.addEventListener('hashchange', () => {
+    const r = parseKey(location.hash);
+    if (keyOf(r) !== keyOf(route)) apply(r);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const tg = e.target, typing = tg && (tg.tagName === 'INPUT' || tg.tagName === 'TEXTAREA');
+    if (route.note) { goBack(); return; }
+    if (typing) { tg.blur(); return; }
+    if (depthOf(route) > 0) goBack();
+  });
+
+  // never hang on the loader if the shared store is slow to answer
+  const capDb = await Promise.race([
+    Promise.resolve(window.claude?.use('db')).catch(() => null),
+    new Promise(res => setTimeout(() => res(null), 4000))
+  ]);
+  if (capDb) {
+    db = capDb;
+    db.collection('progress').onSnapshot(snap => {
+      snap.docs.forEach(doc => {
+        const parts = doc.id.split('__');
+        const user = parts[0], topicId = parts.slice(1).join('__');
+        if (!progress[user]) progress[user] = {};
+        progress[user][topicId] = doc.data().done;
+      });
+      updateUI();
+    });
+    db.collection('comments').onSnapshot(snap => {
+      commentsData = {};
+      snap.docs.forEach(doc => {
+        const d = doc.data();
+        if (!commentsData[d.topicId]) commentsData[d.topicId] = [];
+        commentsData[d.topicId].push({ ...d, id: doc.id });
+      });
+      Object.keys(commentsData).forEach(k => {
+        commentsData[k].sort((a,b) => (a.ts||0)-(b.ts||0));
+      });
+      refreshCmtBtns();
+      if (drawerTopicId) renderComments(drawerTopicId);
+    });
+    db.collection('notes').onSnapshot(snap => {
+      notesData = {};
+      snap.docs.forEach(doc => { const d = doc.data(); if (d && d.text) notesData[doc.id] = d.text; });
+      syncNoteBox();
+      if (currentPage === 'topics') renderTopics();
+    });
+  }
+  updateUI();
+  setTimeout(() => document.getElementById('loading').classList.add('gone'), 500);
+}
+
+// ─── UI UPDATE ───────────────────────────────
+function updateUI() {
+  document.getElementById('cardMe').classList.toggle('active-user', currentUser === 'me');
+  document.getElementById('cardBro').classList.toggle('active-user', currentUser === 'bro');
+  const total = CATS.reduce((s,c) => s + c.topics.length, 0);
+  const meCount = Object.values(progress.me).filter(Boolean).length;
+  const broCount = Object.values(progress.bro).filter(Boolean).length;
+  let both = 0;
+  CATS.forEach(c => c.topics.forEach(t => { if (progress.me[t.id] && progress.bro[t.id]) both++; }));
+
+  // Progress bars
+  const meP = total ? meCount/total*100 : 0;
+  const broP = total ? broCount/total*100 : 0;
+  document.getElementById('vsMe').style.width = meP + '%';
+  document.getElementById('vsBro').style.width = broP + '%';
+  document.getElementById('vsMePct').textContent = Math.round(meP) + '%';
+  document.getElementById('vsBroPct').textContent = Math.round(broP) + '%';
+
+  // Stats
+  document.getElementById('sMe').textContent = meCount;
+  document.getElementById('sBro').textContent = broCount;
+  document.getElementById('sBoth').textContent = both;
+
+  // XP
+  updateXPCard('me', calcXP('me'));
+  updateXPCard('bro', calcXP('bro'));
+
+  renderCatGrid();
+  if (currentPage === 'topics') renderTopics();
+}
+
+function updateXPCard(user, xp) {
+  const cap = user === 'me' ? 'Me' : 'Bro';
+  const lv = getLevelInfo(xp);
+  const range = lv.max - lv.min;
+  const pct = range ? Math.min(100, (xp - lv.min) / range * 100) : 100;
+
+  document.getElementById(`xp${cap}Val`).innerHTML = `${xp} <span>XP</span>`;
+  document.getElementById(`level${cap}`).innerHTML = `
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    Lv.${lv.lv} · ${lv.name}`;
+  document.getElementById(`xp${cap}Bar`).style.width = pct + '%';
+  document.getElementById(`xp${cap}Next`).textContent =
+    lv.lv < 10
+      ? `${xp - lv.min} / ${range} XP to next level`
+      : `Max level reached!`;
+}
+
+// ─── CATEGORY GRID ───────────────────────────
+function renderCatGrid() {
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = CATS.map(c => {
+    const n = c.topics.length;
+    const me = c.topics.filter(t => progress.me[t.id]).length;
+    const bro = c.topics.filter(t => progress.bro[t.id]).length;
+    return `<div class="cat-card" onclick="showTopicsForCat('${c.id}')">
+      <div class="cat-header">
+        <div class="cat-icon-wrap">${c.icon}</div>
+        <div>
+          <div class="cat-title">${c.name}</div>
+          <div class="cat-sub">${n} topics · ${c.xpEach} XP each</div>
+        </div>
+        <svg class="cat-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="cat-progress-rows">
+        <div class="cat-pr">
+          <div class="cat-pr-label">You</div>
+          <div class="cat-pr-track"><div class="cat-pr-fill me" style="width:${n?me/n*100:0}%"></div></div>
+          <div class="cat-pr-count">${me}/${n}</div>
+        </div>
+        <div class="cat-pr">
+          <div class="cat-pr-label">Bro</div>
+          <div class="cat-pr-track"><div class="cat-pr-fill bro" style="width:${n?bro/n*100:0}%"></div></div>
+          <div class="cat-pr-count">${bro}/${n}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── TOPICS (rendered as a tree: trunk → branches → leaves) ───
+function showTopicsForCat(catId) {
+  go({ page:'topics', cat:catId, note:null });
+}
+
+function renderTopics() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const container = document.getElementById('topicsContainer');
+  container.innerHTML = '';
+  container.classList.toggle('anim', animateNext);
+  animateNext = false;
+  const cats = activeCatFilter ? CATS.filter(c => c.id === activeCatFilter) : CATS;
+  let seq = 0;
+
+  cats.forEach(c => {
+    const filtered = c.topics.filter(t => {
+      const ms = !search || t.name.toLowerCase().includes(search) || t.sub.toLowerCase().includes(search);
+      const dm = progress.me[t.id], db = progress.bro[t.id];
+      const mf = currentFilter === 'all' ? true
+        : currentFilter === 'done' ? (currentUser === 'me' ? dm : db)
+        : !(currentUser === 'me' ? dm : db);
+      return ms && mf;
+    });
+    if (!filtered.length) return;
+
+    // how far up the trunk the current user has "grown"
+    const mine = progress[currentUser] || {};
+    const lastDone = filtered.reduce((acc, t, i) => mine[t.id] ? i : acc, -1);
+    const complete = c.topics.every(t => mine[t.id]);
+
+    const sec = document.createElement('div');
+    sec.className = 'cat-section' + (complete ? ' complete' : '');
+    sec.innerHTML = `
+      <div class="cat-section-hd">
+        <div class="cat-section-hd-icon">${c.icon}</div>
+        <div class="cat-section-hd-name">${c.name}</div>
+        <div class="cat-section-hd-level">${c.level}</div>
+        <div class="cat-section-hd-count">${c.topics.filter(t=>progress.me[t.id]).length}·${c.topics.filter(t=>progress.bro[t.id]).length}/${c.topics.length}</div>
+      </div>
+      <div class="topic-list">${filtered.map((t, i) => topicRow(t, c, i, lastDone, seq++)).join('')}</div>`;
+    container.appendChild(sec);
+  });
+
+  if (!container.children.length) {
+    container.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--fg3);font-size:13px">No topics found</div>`;
+  }
+  refreshCmtBtns();
+}
+
+function topicRow(t, c, idx, lastDone, seq) {
+  const dm = progress.me[t.id], db_val = progress.bro[t.id];
+  let cc = '', ck = '';
+  if (dm && db_val) { cc = 'done-both'; ck = checkSVG(); }
+  else if (currentUser === 'me' && dm) { cc = 'done-me'; ck = checkSVG(); }
+  else if (currentUser === 'bro' && db_val) { cc = 'done-bro'; ck = checkSVG(); }
+  const hasCmt = (commentsData[t.id]||[]).length > 0;
+  const doneCurrent = currentUser === 'me' ? dm : db_val;
+  const cls = ['topic-row'];
+  if (doneCurrent) cls.push('leaf-done');
+  if (idx <= lastDone) cls.push('trunk-in');
+  if (idx < lastDone) cls.push('trunk-out');
+  const pop = lastToggled === t.id ? ' pop' : '';
+  const note = notesData[currentUser + '__' + t.id] || '';
+  return `<div class="${cls.join(' ')}" style="--i:${Math.min(seq, 14)}">
+    <button class="check-btn ${cc}${pop}" onclick="toggleTopic('${t.id}')">${ck}</button>
+    <div class="topic-info">
+      <div class="topic-name${doneCurrent?' done':''}">${t.name}</div>
+      <div class="topic-sub">${t.sub}</div>${note ? `<div class="topic-note">${escH(note)}</div>` : ''}
+    </div>
+    <div class="topic-xp">+${c.xpEach}</div>
+    <div class="topic-duo">
+      <div class="duo-dot${dm?' done-me':''}">Y</div>
+      <div class="duo-dot${db_val?' done-bro':''}">B</div>
+    </div>
+    <button class="cmt-btn${hasCmt||note?' has-cmt':''}" data-id="${t.id}" onclick="openDrawer('${t.id}')">${cmtSVG()}</button>
+  </div>`;
+}
+
+function checkSVG() {
+  return `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+}
+function cmtSVG() {
+  return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+}
+
+function refreshCmtBtns() {
+  document.querySelectorAll('.cmt-btn').forEach(b => {
+    const has = (commentsData[b.dataset.id]||[]).length > 0 || !!notesData[currentUser + '__' + b.dataset.id];
+    b.classList.toggle('has-cmt', has);
+  });
+}
+
+// ─── TOGGLE ─────────────────────────────────
+async function toggleTopic(topicId) {
+  const cat = CATS.find(c => c.topics.find(t => t.id === topicId));
+  const prev = progress[currentUser][topicId];
+  const next = !prev;
+  progress[currentUser][topicId] = next;
+  lastToggled = next ? topicId : null;
+  updateUI();
+  lastToggled = null;
+
+  const xpGain = cat ? cat.xpEach : 0;
+  if (next && xpGain) showXPToast(`+${xpGain} XP`);
+
+  if (db) {
+    try {
+      await db.doc(`progress/${currentUser}__${topicId}`).set({ done: next, user: currentUser, topicId, ts: Date.now() });
+    } catch(e) {
+      progress[currentUser][topicId] = prev;
+      updateUI();
+      showToast('Save failed.');
+    }
+  }
+}
+
+// ─── COMMENTS ───────────────────────────────
+function openDrawer(topicId) {
+  go({ page:route.page, cat:route.cat, note:topicId });
+}
+
+function closeDrawer() {
+  if (route.note) goBack(); else closeDrawerUI();
+}
+
+function openDrawerUI(topicId) {
+  const f = findTopic(topicId);
+  drawerTopicId = topicId;
+  document.getElementById('drawerSub').textContent = f ? f.t.name : '';
+  syncNoteBox(true);
+  renderComments(topicId);
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('cmtInput').focus();
+}
+
+function closeDrawerUI() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  drawerTopicId = null;
+}
+
+// ─── PER-TOPIC NOTES ────────────────────────
+let noteTimer;
+function syncNoteBox(force) {
+  const ta = document.getElementById('noteInput');
+  if (!ta || !drawerTopicId) return;
+  if (force || document.activeElement !== ta) ta.value = notesData[currentUser + '__' + drawerTopicId] || '';
+  document.getElementById('noteWho').textContent = currentUser === 'me' ? 'Your note' : "Bro's note";
+  if (force) document.getElementById('noteState').textContent = '';
+}
+
+function onNoteInput() {
+  const user = currentUser, id = drawerTopicId;
+  const text = document.getElementById('noteInput').value;
+  document.getElementById('noteState').textContent = 'Saving…';
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => saveNote(user, id, text), 600);
+}
+
+async function saveNote(user, topicId, text) {
+  const key = user + '__' + topicId;
+  const clean = text.trim();
+  if (clean) notesData[key] = text; else delete notesData[key];
+  const st = document.getElementById('noteState');
+  try {
+    if (db) {
+      if (clean) await db.doc(`notes/${key}`).set({ text, user, topicId, ts: Date.now() });
+      else await db.doc(`notes/${key}`).delete();
+    }
+    st.textContent = 'Saved';
+  } catch (e) {
+    st.textContent = 'Save failed';
+  }
+  if (currentPage === 'topics') renderTopics();
+}
+
+function renderComments(topicId) {
+  const list = document.getElementById('cmtList');
+  const cmts = commentsData[topicId] || [];
+  if (!cmts.length) {
+    list.innerHTML = `<div class="cmt-empty">No notes yet. Add the first one!</div>`;
+    return;
+  }
+  list.innerHTML = cmts.map(c => `
+    <div class="cmt-item">
+      <div class="cmt-avatar ${c.user==='me'?'me':''}">${c.user==='me'?'Y':'B'}</div>
+      <div class="cmt-bubble">
+        <div class="cmt-meta">
+          <span class="cmt-author ${c.user}">${c.user==='me'?'You':'Bro'}</span>
+          <span class="cmt-time">${fmt(c.ts)}</span>
+        </div>
+        <div class="cmt-text">${escH(c.text)}</div>
+      </div>
+    </div>`).join('');
+  list.scrollTop = list.scrollHeight;
+}
+
+async function submitComment() {
+  const inp = document.getElementById('cmtInput');
+  const text = inp.value.trim();
+  if (!text || !drawerTopicId) return;
+  document.getElementById('cmtSend').disabled = true;
+  inp.value = '';
+  if (db) {
+    try {
+      const id = `c_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+      await db.doc(`comments/${id}`).set({ topicId: drawerTopicId, user: currentUser, text, ts: Date.now() });
+    } catch(e) { showToast('Failed to post.'); }
+  } else {
+    if (!commentsData[drawerTopicId]) commentsData[drawerTopicId] = [];
+    commentsData[drawerTopicId].push({ topicId: drawerTopicId, user: currentUser, text, ts: Date.now() });
+    renderComments(drawerTopicId);
+  }
+  document.getElementById('cmtSend').disabled = false;
+  inp.focus();
+}
+
+document.getElementById('cmtInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(); }
+});
+
+// ─── HELPERS ────────────────────────────────
+function esc(s) { return s.replace(/'/g,"\\'"); }
+function escH(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt(ts) {
+  if (!ts) return '';
+  const d = new Date(ts), now = Date.now(), diff = now - ts;
+  if (diff < 60000) return 'just now';
+  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  return d.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
+}
+
+let xpTimer;
+function showXPToast(msg) {
+  const el = document.getElementById('xpToast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(xpTimer);
+  xpTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ─── NAVIGATION · a tree of places ──────────
+//
+//   Overview ─┬─ All Topics ─── Comments
+//             └─ <Category> ─── Comments
+//
+// Back always climbs one branch up. Every place has its own #link,
+// so the browser / phone Back button walks the same tree.
+function findTopic(id) {
+  for (const c of CATS) {
+    const t = c.topics.find(t => t.id === id);
+    if (t) return { t, c };
+  }
+  return null;
+}
+
+function keyOf(r) {
+  const base = r.page === 'overview' ? 'overview' : (r.cat ? 'cat-' + r.cat : 'topics');
+  return r.note ? base + '-note-' + r.note : base;
+}
+
+function parseKey(k) {
+  k = (k || '').replace(/^#/, '');
+  let note = null;
+  const i = k.indexOf('-note-');
+  if (i > -1) { note = k.slice(i + 6); k = k.slice(0, i); }
+  let r = { page:'overview', cat:null, note:null };
+  if (k === 'topics') r = { page:'topics', cat:null, note:null };
+  else if (k.startsWith('cat-') && CATS.some(c => c.id === k.slice(4))) r = { page:'topics', cat:k.slice(4), note:null };
+  if (note && r.page === 'topics' && findTopic(note)) r.note = note;
+  return r;
+}
+
+function depthOf(r) { return r.note ? 2 : (r.page === 'topics' ? 1 : 0); }
+
+function parentOf(r) {
+  if (r.note) return { page:r.page, cat:r.cat, note:null };
+  if (r.page === 'topics') return { page:'overview', cat:null, note:null };
+  return null;
+}
+
+function trailOf(r) {
+  const items = [{ label:'Overview', route:{ page:'overview', cat:null, note:null } }];
+  if (r.page === 'topics') {
+    const cat = r.cat && CATS.find(c => c.id === r.cat);
+    items.push({ label: cat ? cat.name : 'All Topics', route:{ page:'topics', cat:r.cat, note:null } });
+    if (r.note) {
+      const f = findTopic(r.note);
+      items.push({ label:'Notes · ' + (f ? f.t.name : ''), route:r });
+    }
+  }
+  return items;
+}
+
+function goPage(p) { go({ page:p, cat:null, note:null }); }
+
+function go(r) {
+  if (keyOf(r) === keyOf(route)) return;
+  try { location.hash = keyOf(r); } catch (e) {}
+  apply(r);
+}
+
+function goBack() {
+  const p = parentOf(route);
+  if (!p) return;
+  const pk = keyOf(p);
+  if (prevKey === pk && history.length > 1) {
+    // we came from there – step back through real history
+    try {
+      history.back();
+      setTimeout(() => { if (keyOf(route) !== pk) apply(p); }, 300);
+      return;
+    } catch (e) {}
+  }
+  try { location.replace('#' + pk); } catch (e) {}
+  apply(p);
+}
+
+function jumpTo(i) {
+  const items = trailOf(route);
+  if (i === items.length - 2) { goBack(); return; }
+  go(items[i].route);
+}
+
+function apply(r, initial) {
+  const main = document.querySelector('.main');
+  const oldKey = keyOf(route), newKey = keyOf(r);
+  const oldDepth = depthOf(route), newDepth = depthOf(r);
+  const pageChanged = initial || r.page !== route.page || r.cat !== route.cat;
+
+  if (!initial && oldKey !== newKey) {
+    scrollMem[oldKey] = main.scrollTop;
+    prevKey = oldKey;
+  }
+  route = r;
+  currentPage = r.page;
+  activeCatFilter = r.cat;
+
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + r.page));
+  document.querySelectorAll('.nav-tab, .mob-tab').forEach(t => t.classList.toggle('active', t.dataset.page === r.page));
+
+  if (pageChanged) {
+    animateNext = true;
+    if (r.page === 'topics') renderTopics(); else renderCatGrid();
+    main.scrollTop = (!initial && newDepth < oldDepth) ? (scrollMem[newKey] || 0) : 0;
+  }
+
+  if (r.note) { if (drawerTopicId !== r.note) openDrawerUI(r.note); }
+  else if (drawerTopicId) closeDrawerUI();
+
+  renderTrail();
+}
+
+function renderTrail() {
+  const items = trailOf(route);
+  const el = document.getElementById('trail');
+  const path = document.getElementById('trailPath');
+  const show = items.length > 1;
+  el.classList.toggle('show', show);
+  if (!show) { trailLen = 1; return; }
+
+  path.innerHTML = items.map((it, i) => {
+    const cur = i === items.length - 1;
+    const isNew = i >= trailLen;
+    const link = i > 0 ? `<span class="tlink${isNew ? ' new' : ''}"></span>` : '';
+    const node = cur
+      ? `<button class="tnode current${isNew ? ' new' : ''}" aria-current="page" tabindex="-1"><span class="dot"></span><span class="t">${escH(it.label)}</span></button>`
+      : `<button class="tnode${isNew ? ' new' : ''}" onclick="jumpTo(${i})"><span class="dot"></span><span class="t">${escH(it.label)}</span></button>`;
+    return link + node;
+  }).join('');
+  trailLen = items.length;
+  path.scrollLeft = path.scrollWidth;
+
+  const parent = items[items.length - 2];
+  const btn = document.getElementById('backBtn');
+  btn.title = 'Back to ' + parent.label;
+  btn.setAttribute('aria-label', 'Back to ' + parent.label);
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTopics();
+}
+
+function switchUser(u) {
+  currentUser = u;
+  document.getElementById('btnMe').classList.toggle('active', u === 'me');
+  document.getElementById('btnBro').classList.toggle('active', u === 'bro');
+  updateUI();
+}
+
+// ─── THEME ──────────────────────────────────
+function updateThemeIcon(theme) {
+  const btn = document.getElementById('themeBtn');
+  const isDark = theme === 'dark';
+  btn.innerHTML = isDark
+    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+}
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const cur = root.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  updateThemeIcon(next);
+  try { localStorage.setItem('theme', next); } catch(e) {}
+}
+
+init();
+</script>
+
+</body></html>
